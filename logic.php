@@ -12,26 +12,26 @@ add_filter( 'widget_display_callback', 'conditional_widgets_widget' );
  * Determine whether or not this widget should be displayed on this page request
  */
 function conditional_widgets_widget( $instance ) {
-	
+
 	/* variables we have access to
 	$instance['cw_home_enable_checkbox']
 	$instance['cw_select_home_page']  //show == 1, hide == 0, show only on home == 2
-	
+
 	// pages
 	$instance['cw_pages_enable_checkbox']
 	$instance['cw_select_pages']
 	$instance['cw_pages_sub_checkbox']
 	$instance['cw_selected_pages']
 	$instance['cw_pages_all'] // since 1.8
-	
+
 	// custom_taxes  - since 1.9
-	$instance['cw_custom'] 
+	$instance['cw_custom']
 	$instance['cw_custom'][$type][$tax]['enable']
 	$instance['cw_custom'][$type][$tax]['select']
-	$instance['cw_custom'][$type][$tax]['all'] 
+	$instance['cw_custom'][$type][$tax]['all']
 	$instance['cw_custom'][$type][$tax]['sub']
 	$instance['cw_custom'][$type][$tax]['selected_ids']
-	
+
 	// utility
 	$instance['cw_posts_page_hide']
 	$instance['cw_404_hide']
@@ -42,9 +42,9 @@ function conditional_widgets_widget( $instance ) {
 
 	// utility - other
 	$instance['cw_mobile_hide'] - since 2.2
-	
+
 	*/
-	
+
 	// First, process 'other' options which take precedence over the following
 
 	/* is_mobile */
@@ -65,10 +65,10 @@ function conditional_widgets_widget( $instance ) {
 	global $wp_query;
 	$qvars = $wp_query->query_vars;
 
-	$type_tax_pairs = apply_filters( 'conditional_widgets_type_tax_pairs', array() );
+	$type_tax_pairs = apply_filters( 'conditional_widgets_type_tax_pairs', [] );
 
 	$instance = conditional_widgets_init_instance( $instance );
-	
+
 	if ( $instance['cw_home_enable_checkbox'] ) {
 		//box checked for home page logic takes priority by processing first
 		switch ( $instance['cw_select_home_page'] ) {
@@ -91,16 +91,15 @@ function conditional_widgets_widget( $instance ) {
 				break;
 		}
 	}
-	
+
 	$arr_pages = $instance['cw_selected_pages'];
 	if ( ! is_array( $arr_pages ) ) {
-		$arr_pages = array();
+		$arr_pages = [];
 	}
 
 	if ( $instance['cw_pages_enable_checkbox'] && is_page() ) {
-		
+
 		// We care about pages and this is a page.
-		
 
 
 		// see if we are using same logic for ALL pages
@@ -115,7 +114,7 @@ function conditional_widgets_widget( $instance ) {
 		}
 
 		$current_page_id = $wp_query->post->ID;
-		
+
 		//see if we care about subpages
 		if ( $instance['cw_pages_sub_checkbox'] == 1 ) {
 			foreach ( $arr_pages as $page ) {
@@ -152,17 +151,27 @@ function conditional_widgets_widget( $instance ) {
 			}
 		}
 	} //is_page && we care
-	
+
+	if ( $instance['cw_posts_enable_checkbox'] && is_single() ) {
+
+		if($instance['cw_select_posts'] == 1 ) {
+			return $instance;
+		}
+
+		return false;
+
+	}
 
 	// is individual post of any type (other than page)
-	if ( is_single() ) {
+/*	if ( is_single() ) {
+
 
 		$current_post_id = $wp_query->post->ID;
 		$type            = get_post_type();
 
-		if ( isset( $instance['cw_custom'][$type] ) ) {
+		if ( isset( $instance['cw_custom'][ $type ] ) ) {
 
-			$subdata_type = $instance['cw_custom'][$type];
+			$subdata_type = $instance['cw_custom'][ $type ];
 
 
 			foreach ( $subdata_type as $tax => $subdata_type_tax ) {
@@ -186,8 +195,8 @@ function conditional_widgets_widget( $instance ) {
 				$terms_to_match = $subdata_type_tax['selected_ids'];
 
 
-				if ( !is_array( $terms_to_match ) ) {
-					$terms_to_match = array();
+				if ( ! is_array( $terms_to_match ) ) {
+					$terms_to_match = [];
 				}
 
 
@@ -227,7 +236,8 @@ function conditional_widgets_widget( $instance ) {
 			return $instance;
 		}
 
-	} // /is_single
+	} // /is_single*/
+
 
 
 	if ( is_category() ) {
@@ -266,7 +276,7 @@ function conditional_widgets_widget( $instance ) {
 		}
 
 		if ( ! is_array( $terms_to_match ) ) {
-			$terms_to_match = array();
+			$terms_to_match = [];
 		}
 
 		$cat   = $qvars['cat'];
@@ -292,7 +302,7 @@ function conditional_widgets_widget( $instance ) {
 	// TODO
 	/*
 	if (is_tax()) {
-		
+
 	}
 	*/
 
@@ -340,5 +350,5 @@ function conditional_widgets_widget( $instance ) {
 
 	//default to showing
 	return $instance;
-	
+
 } // /function conditional_widgets_widget()

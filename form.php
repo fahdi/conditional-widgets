@@ -60,7 +60,7 @@ function conditional_widgets_form( $widget, $return, $instance ) {
 
 				if ( $type_tax_pairs ) {
 					foreach( $type_tax_pairs as $pair ) {
-					
+
 						$tax          = $pair['tax'];
 						$type         = $pair['type'];
 						$selected_ids = array();
@@ -79,7 +79,7 @@ function conditional_widgets_form( $widget, $return, $instance ) {
 
 						// taxonomy applied to type
 						// @TODO - validate
-					
+
 						// for prefilling form fields..
 						if ( isset( $instance['cw_custom'][$type][$tax] ) ) {
 							$custom_subdata = $instance['cw_custom'][$type][$tax];
@@ -166,7 +166,43 @@ function conditional_widgets_form( $widget, $return, $instance ) {
 			?>
 			</div>
 
-			<h6 class="conditional-widget-header conditional-widget-sub-heading"><?php _e( 'Special Page Options', 'conditional-widgets' ); ?></h6>
+            <h6 class="conditional-widget-header conditional-widget-sub-heading"><?php _e( 'Posts' ); ?></h6>
+            <p>
+				<?php
+				printf(
+					__( '%s and %s', 'conditional-widgets' ),
+					'<label><input type="checkbox" name="cw_posts_enable_checkbox" '
+					. checked( $instance['cw_posts_enable_checkbox'], 1, false )
+					. '>'
+					. sprintf( _x( 'Enable %s Logic', '(Custom) Post Type will fill the placeholder', 'conditional-widgets' ), __( 'Post' ) )
+					. '</label>',
+					conditional_widgets_form_show_hide_select( 'cw_select_posts', $instance['cw_select_posts'], false, false )
+					. __( 'on selected Posts:', 'conditional-widgets' )
+				);
+				if ( ! isset( $instance['cw_post_all'] ) ) {
+					$instance['cw_post_all'] = 0;
+				}
+				?>
+                <span class="cw_sub_checkbox">
+					<label>
+						<input type="checkbox" name="cw_posts_all" value="1" <?php checked( $instance['cw_posts_all'] ); ?>>
+						<?php _e( 'ALL posts (or select below)', 'conditional-widgets' ); ?>
+					</label>
+				</span>
+
+            </p>
+
+            <div class="conditional-widgets-checkbox-wrapper">
+				<?php
+				$selected_posts = array();
+				if ( isset( $instance['cw_selected_posts'] ) && is_array( $instance['cw_selected_posts'] ) ) {
+					$selected_posts = $instance['cw_selected_posts'];
+				}
+				conditional_widgets_post_checkboxes( $selected_posts );
+				?>
+            </div>
+
+            <h6 class="conditional-widget-header conditional-widget-sub-heading"><?php _e( 'Special Page Options', 'conditional-widgets' ); ?></h6>
 			<ul class="conditional-widgets-special-page-option-list">
 				<!-- posts page -->
 				<li>
@@ -214,7 +250,7 @@ function conditional_widgets_form( $widget, $return, $instance ) {
 			</ul>
 
 			<h6 class="conditional-widget-header conditional-widget-sub-heading"><?php _e( 'Other Options', 'conditional-widgets' ); ?></h6>
-			<p><?php 
+			<p><?php
 				_e('Note: The following options will take precendence over those above.', 'conditional-widgets');
 			?></p>
 			<ul class="conditional-widgets-special-page-option-list">
@@ -232,8 +268,8 @@ function conditional_widgets_form( $widget, $return, $instance ) {
 				</li>
 			</ul>
 
-			
-			
+
+
 
 		</div> <!-- toggled div -->
 
@@ -248,10 +284,11 @@ function conditional_widgets_update( $new_instance, $old_instance ) {
 
 	$instance = $new_instance;  //save old data, and only change the following stuff:
 
+    // var_dump($new_instance);
+
 	// home
 	$instance['cw_home_enable_checkbox'] = isset($_POST['cw_home_enable_checkbox']) ? 1 : 0;
 	$instance['cw_select_home_page']     = $_POST['cw_select_home_page'];
-
 
 	// custom types, including posts and categories - since 1.9
 	$type_tax_pairs = apply_filters( 'conditional_widgets_type_tax_pairs', array() );
@@ -300,6 +337,19 @@ function conditional_widgets_update( $new_instance, $old_instance ) {
 
 	$instance['cw_pages_all'] = isset( $_POST['cw_pages_all'] ) ? 1 : 0;
 
+	//posts
+	$instance['cw_posts_enable_checkbox'] = isset( $_POST['cw_posts_enable_checkbox'] ) ? 1 : 0;
+	$instance['cw_select_posts']          = intval($_POST['cw_select_posts']);
+	$instance['cw_posts_sub_checkbox']    = isset( $_POST['cw_posts_sub_checkbox']    ) ? 1 : 0;
+
+	if ( isset( $_POST['cw_selected_posts'] ) ) {
+		$instance['cw_selected_posts'] = $_POST['cw_selected_posts'];
+	} else {
+		$instance['cw_selected_posts'] = '';
+	}
+
+	$instance['cw_posts_all'] = isset( $_POST['cw_posts_all'] ) ? 1 : 0;
+
 	// utility - since 1.0.4
 	//404, search, archive
 	$instance['cw_posts_page_hide']     = isset( $_POST['cw_posts_page_hide_checkbox']     ) ? 1 : 0;
@@ -322,6 +372,7 @@ function cets_conditional_widgets_instance_is_active( $instance ) {
 	if (
 		$instance['cw_home_enable_checkbox']
 		|| $instance['cw_pages_enable_checkbox']
+		|| $instance['cw_posts_enable_checkbox']
 		|| $instance['cw_404_hide']
 		|| $instance['cw_search_hide']
 		|| $instance['cw_author_archive_hide']

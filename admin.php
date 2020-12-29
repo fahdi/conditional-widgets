@@ -61,14 +61,14 @@ function conditional_widgets_load_plugin_textdomain() {
  * Helper function for outputting the select boxes in the widget's form
  */
 function conditional_widgets_form_show_hide_select( $name, $value = '', $only = false, $echo = false ) {
-	
+
 	$o = ''; //output
 
 	$o .= "<select name=$name>";
 		$o .= "<option value='1' ";
 		$o .= selected( $value, 1, false );
 		$o .= ">" . __( 'Show', 'conditional-widgets' ) . "</option>";
-	
+
 	if ( $only ) {
 		$o .= "<option value='2' ";
 		$o .= selected( $value, 2, false );
@@ -105,6 +105,28 @@ function conditional_widgets_page_checkboxes( $selected = array() ) {
 
 } // /function conditional_widgets_page_checkboxes()
 
+/**
+ * Helper function for displaying the list of checkboxes for Posts
+ */
+function conditional_widgets_post_checkboxes( $selected = [] ) {
+
+	echo "<ul class='conditional-widget-selection-list'>";
+
+	$all_posts = get_posts();
+	$output    = "";
+
+	foreach ( $all_posts as $post ) {
+		$output .= "\n<li>";
+		$output .= '<label class="selectit">';
+		$output .= "<input value='$post->ID' type='checkbox' name='cw_selected_posts[]' " . checked( in_array( $post->ID, $selected ), true, false ) . " /> " . esc_html( $post->post_title ) . "</label>";
+		$output .= "\n</li>";
+	}
+
+	echo $output;
+
+	echo "</ul>";
+
+} // /function conditional_widgets_post_checkboxes()
 
 function conditional_widgets_term_checkboxes( $tax, $type, $selected = array() ) {
 

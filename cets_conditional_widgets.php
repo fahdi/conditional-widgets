@@ -1,10 +1,10 @@
 <?php
 /**
-Plugin Name: Conditional Widgets
+Plugin Name: Conditional Widgets Enhanced
 Plugin URI:  http://wordpress.org/extend/plugins/conditional-widgets/
 Description: Grants users advanced control over which pages and categories each widget is displayed on
-Version:     2.2
-Author:      Jason LeMahieu and Kevin Graeme
+Version:     2.3
+Author:      Jason LeMahieu, Kevin Graeme and Fahad Murtaza
 License:     GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: conditional-widgets
@@ -27,7 +27,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-/* CHANGELOG 
+/* CHANGELOG
+	= 2.3 =
+		* Add settings so that we can show/hide widget on posts
 	= 2.2 =
 		* New Features: Hide on Desktop / Hide on Mobile.  (Note that using either of these options will immediately hide the widget when the condition is true, and any other options to 'show' will be ignored.
  		* Fixes lots of small bugs related to the display of the widget control form
@@ -77,7 +79,9 @@ function conditional_widgets_init_instance( $instance ) {
 		'cw_home_enable_checkbox',
 		'cw_select_home_page',
 		'cw_pages_enable_checkbox',
+		'cw_posts_enable_checkbox',
 		'cw_select_pages',
+		'cw_select_posts',
 		'cw_pages_sub_checkbox',
 		'cw_404_hide',
 		'cw_search_hide',
@@ -94,15 +98,18 @@ function conditional_widgets_init_instance( $instance ) {
 			$instance[ $key ] = '';
 		}
 	}
-	
+
+
 	//arrays
-	$arraykeys = array( 'cw_selected_pages', 'cw_custom', );
+	$arraykeys = array( 'cw_selected_pages', 'cw_selected_posts', 'cw_custom', );
 
 	foreach ( $arraykeys as $arraykey ) {
 		if ( ! isset( $instance[ $arraykey ] ) ) {
 			$instance[ $arraykey ] = array();
 		}
 	}
+
+	// var_dump($instance);
 
 	return $instance;
 
@@ -116,7 +123,7 @@ function conditional_widgets_get_default_custom_subdata() {
 		'all'          => 0,
 		'sub'          => 0,
 	);
-	
+
 	return $custom_subdata;
-	
+
 } // /function conditional_widgets_get_default_custom_subdata()
