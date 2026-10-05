@@ -279,8 +279,10 @@ function conditional_widgets_widget( $instance ) {
 			$terms_to_match = [];
 		}
 
-		$cat   = $qvars['cat'];
-		$match = in_array( $cat, $terms_to_match );
+		// query_vars['cat'] is only set for ?cat=ID requests; pretty permalinks set
+		// 'category_name' instead, so resolve the queried term properly.
+		$cat   = (int) get_queried_object_id();
+		$match = $cat > 0 && in_array( $cat, array_map( 'intval', $terms_to_match ), true );
 
 		if ( $match ) {
 			if ( $cat_subdata['select'] == 1 ) {
